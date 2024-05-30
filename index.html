@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pushy Test</title>
+    <script src="https://sdk.pushy.me/web/1.0.10/pushy-sdk.js"></script>
+</head>
+<body>
+    <h1>Pushy Test</h1>
+    <input id="topic" placeholder="Enter Topic" type="text"/>
+    <button id="register">Register Device</button>
+    <script>
+        // Wait for the page to load
+        document.addEventListener('DOMContentLoaded', function () {
+            const registerButton = document.getElementById('register');
+            registerButton.addEventListener('click', registerDevice);
+        });
+
+        function registerDevice() {
+            const APP_ID = '6655a95544f72bc8361c95ec';
+
+            // Check if service workers are supported in the current browser
+            if ('serviceWorker' in navigator) {
+                // Register the service worker from Pushy
+                navigator.serviceWorker.register('service-worker.js').then(function (registration) {
+                    // Pushy service worker has been registered
+                    console.log('Service Worker registered with scope:', registration.scope);
+
+                    // Register this device with Pushy
+                    Pushy.register({ appId: APP_ID }).then(function (deviceToken) {
+                        // Print device token to console
+                        console.log('Pushy device token: ' + deviceToken);
+
+                        // Subscribe the device to a topic
+                        subscribeToTopic(deviceToken);
+                    }).catch(function (err) {
+                        // Handle registration errors
+                        console.error('Pushy registration failed:', err);
+                    });
+                }).catch(function (err) {
+                    // Handle service worker registration errors
+                    console.error('Service Worker registration failed:', err);
+                });
+            } else {
+                // Service workers are not supported
+                alert('Service workers are not supported in this browser.');
+            }
+        }
+
+        function subscribeToTopic(deviceToken) {
+            // Example topic
+            var topic = document.getElementById("topic").value;
+
+            // Subscribe the device to this topic
+            Pushy.subscribe(topic, deviceToken).then(function () {
+                // Success, device subscribed to topic
+                console.log('Subscribed to topic successfully!');
+            }).catch(function (err) {
+                // Failed to subscribe to topic
+                console.error('Subscribe failed:', err);
+            });
+        }
+    </script>
+</body>
+</html>
